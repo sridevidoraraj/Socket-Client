@@ -2,51 +2,27 @@ package com.gcit.client;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 public class Client {
+
     public static void main(String[] args) {
-        Socket socket = null;
-        InputStreamReader inputStreamReader = null;
-        OutputStreamWriter outputStreamWriter = null;
-        BufferedReader bufferedReader = null;
-        BufferedWriter bufferedWriter = null;
-
-        try {
-            socket = new Socket("localhost", 5000);
-            inputStreamReader = new InputStreamReader(socket.getInputStream());
-            outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-            bufferedReader = new BufferedReader(inputStreamReader);
-            bufferedWriter = new BufferedWriter(outputStreamWriter);
-
-            Scanner scanner = new Scanner(System.in);
-            while (true){
-                String msgToSend = scanner.nextLine();
-                bufferedWriter.write(msgToSend);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-
-                System.out.println("Server: " + bufferedReader.readLine());  //printing the server message
-
-                if (msgToSend.equalsIgnoreCase("BYE"))
-                    break;
+        try{
+            Socket socket=new Socket("localhost",8080);
+            DataInputStream inStream=new DataInputStream(socket.getInputStream());
+            DataOutputStream outStream=new DataOutputStream(socket.getOutputStream());
+            BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+            String clientMessage="",serverMessage="";
+            while(!clientMessage.equals("bye")){
+                clientMessage=br.readLine();
+                outStream.writeUTF(clientMessage);
+                outStream.flush();
+                serverMessage=inStream.readUTF();
+                System.out.println(serverMessage);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (socket != null)
-                    socket.close();
-                if (inputStreamReader != null)
-                    inputStreamReader.close();
-                if (outputStreamWriter != null)
-                    outputStreamWriter.close();
-                if (bufferedReader != null)
-                    bufferedReader.close();
-                if (bufferedWriter != null)
-                    bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            outStream.close();
+            outStream.close();
+            socket.close();
+        }catch(Exception e){
+            System.out.println(e);
         }
     }
 }
